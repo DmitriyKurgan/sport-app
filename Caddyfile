@@ -1,0 +1,51 @@
+# =====================================================================
+# FitTrack reverse-proxy (Caddy 2)
+#
+# CADDY_SITE задаёт address блока:
+#   - ":80"        → local/staging без TLS
+#   - "example.com" → автоматический Let's Encrypt при наличии DNS
+# =====================================================================
+
+{
+	admin off
+	email {$ACME_EMAIL}
+}
+
+{$CADDY_SITE} {
+	handle /api/* {
+		reverse_proxy api:3001 {
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	@private_metrics {
+		path /metrics
+		remote_ip private_ranges
+	}
+	handle @private_metrics {
+		reverse_proxy api:3001
+	}
+	handle /metrics {
+		respond "Forbidden" 403
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	encode gzip zstd
+
+	log {
+		output stdout
+		format json
+	}
+}

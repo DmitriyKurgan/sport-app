@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+coverage
+.env.local
+.env.*.local
+*.log
+.git
+.gitignore
+.vscode
+.idea
+README.md
+next-env.d.ts

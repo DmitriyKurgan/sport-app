@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(where psql:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql\" -U postgres -c \"SELECT 1;\")",
+      "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/15/bin/psql\" -U postgres -h localhost -c \"SELECT version\\(\\);\")",
+      "Bash(taskkill //F //IM psql.exe)",
+      "Bash(npm test:*)",
+      "Bash(grep -rl \"ExerciseService\\\\|TrainingProgramService\\\\|ProgressLogService\\\\|AnalyticsService\" src/modules/*/__tests__/)",
+      "Bash(grep -l \"AppCacheService\" src/modules/*/__tests__/*.spec.ts)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(JWT_ACCESS_SECRET=test JWT_REFRESH_SECRET=test docker compose config)",
+      "Bash(docker version *)",
+      "Bash(wc -l src/migrations/*.ts)",
+      "Bash(npx tsc *)",
+      "Bash(powershell -Command \"Get-Process 'Docker Desktop' -ErrorAction SilentlyContinue | Select-Object Name, Id\")",
+      "Bash(powershell -Command \"Test-Path 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe'\")",
+      "Bash(powershell -Command \"Start-Process 'C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe'\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001/api/v1/screening/questions)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/login)",
+      "Bash(docker exec *)",
+      "Bash(powershell -Command \"Get-Service postgresql* -ErrorAction SilentlyContinue | Select-Object Name, Status\")",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 5433 -ErrorAction SilentlyContinue | Select-Object LocalPort, State, OwningProcess\")",
+      "Bash(powershell -Command 'Get-NetTCPConnection -State Listen | Where-Object {$_.LocalPort -ge 5430 -and $_.LocalPort -le 5440} | Select-Object LocalPort,OwningProcess')",
+      "Bash(powershell -Command '5434..5440 | ForEach-Object { if \\(-not \\(Get-NetTCPConnection -State Listen -LocalPort $_ -ErrorAction SilentlyContinue\\)\\) { Write-Host \"FREE: $_\"; break } }')",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 8080,8443 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8090/api/v1/screening/questions)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8090/login)",
+      "Bash(curl -s http://localhost:3001/metrics)",
+      "Bash(curl -s http://localhost:3001/api/v1/training/catalog)"
+    ]
+  }
+}
