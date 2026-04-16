@@ -18,6 +18,8 @@ COPY . .
 # В docker-compose передаётся через build.args.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Включаем standalone output только для Docker (Vercel сам управляет сборкой)
+ENV NEXT_OUTPUT=standalone
 
 RUN npm run build
 

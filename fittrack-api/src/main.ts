@@ -11,7 +11,7 @@ import { I18nValidationPipe } from './common/pipes/i18n-validation.pipe';
 import { MetricsInterceptor, MetricsService } from './modules/metrics';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule.register(), { bufferLogs: true });
   // pino перехватывает Nest Logger (включая SQL-запросы, событийные эмиттеры и т.п.)
   app.useLogger(app.get(PinoLogger));
   const config = app.get(ConfigService);
@@ -33,8 +33,8 @@ async function bootstrap() {
   app.use(urlencoded({ limit: '1mb', extended: true }));
 
   app.setGlobalPrefix(config.get<string>('app.apiPrefix', 'api/v1'), {
-    // /metrics — отдельный root-path для Prometheus scrape
-    exclude: ['metrics'],
+    // /metrics — Prometheus scrape; /health и /health/ready — Render/k8s probes
+    exclude: ['metrics', 'health', 'health/ready'],
   });
 
   app.enableCors({

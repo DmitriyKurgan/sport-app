@@ -78,16 +78,7 @@ services:
       BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-10}
     ports:
       - "${API_EXPOSED_PORT:-3001}:3001"
-    # Entrypoint: ждём PG → миграции → старт
-    command: >
-      sh -c "
-      echo 'Waiting for postgres...' &&
-      until node -e 'require(\"net\").connect(5432, \"postgres\").on(\"connect\", () => process.exit(0)).on(\"error\", () => process.exit(1))' 2>/dev/null; do sleep 1; done &&
-      echo 'Running migrations...' &&
-      node scripts/migrate.js &&
-      echo 'Starting API...' &&
-      node dist/main.js
-      "
+    # CMD из Dockerfile (sh scripts/start-production.sh) ждёт PG + миграции + запуск API.
     networks:
       - fittrack-net
 

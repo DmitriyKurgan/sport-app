@@ -1,0 +1,74 @@
+# Render Blueprint — описывает API + managed PostgreSQL.
+# Импорт: на Render → New → Blueprint → выбери репозиторий, Render найдёт этот файл.
+#
+# После деплоя:
+#   1. Возьми URL сервиса (https://fittrack-api.onrender.com) и поставь его в Vercel
+#      как NEXT_PUBLIC_API_URL для frontend.
+#   2. В Render Dashboard → fittrack-api → Environment добавь CORS_ORIGIN=https://<твой-vercel-домен>
+#   3. (Опционально) подключи Upstash Redis и задай REDIS_HOST/REDIS_PORT/REDIS_PASSWORD;
+#      по умолчанию приложение работает без Redis (REDIS_ENABLED=false).
+
+databases:
+  - name: fittrack-db
+    databaseName: fittrack
+    user: fittrack
+    plan: free
+    postgresMajorVersion: 15
+
+services:
+  - type: web
+    name: fittrack-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: fittrack-api
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: API_PREFIX
+        value: api/v1
+
+      # PostgreSQL (Render injects connection params from the database above)
+      - key: DATABASE_HOST
+        fromDatabase: { name: fittrack-db, property: host }
+      - key: DATABASE_PORT
+        fromDatabase: { name: fittrack-db, property: port }
+      - key: DATABASE_USER
+        fromDatabase: { name: fittrack-db, property: user }
+      - key: DATABASE_PASSWORD
+        fromDatabase: { name: fittrack-db, property: password }
+      - key: DATABASE_NAME
+        fromDatabase: { name: fittrack-db, property: database }
+      - key: DATABASE_SYNCHRONIZE
+        value: "false"
+      - key: DATABASE_LOGGING
+        value: "false"
+
+      # Redis disabled by default (free tier has no Redis).
+      # To enable: provision Upstash Redis and set REDIS_HOST/REDIS_PORT/REDIS_PASSWORD,
+      # then change REDIS_ENABLED to "true".
+      - key: REDIS_ENABLED
+        value: "false"
+
+      # JWT secrets (Render generates random values on first deploy)
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 7d
+      - key: BCRYPT_ROUNDS
+        value: "10"
+
+      # CORS — set to your Vercel domain after frontend deploy:
+      #   https://fittrack.vercel.app
+      - key: CORS_ORIGIN
+        sync: false

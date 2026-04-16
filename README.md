@@ -159,7 +159,14 @@ npm run type-check   # TypeScript check without emit
 npm run lint
 ```
 
+## Deploy to production
+
+The recommended free-tier setup is **Render (API + PostgreSQL) + Vercel (frontend)**. The repo includes a `render.yaml` Blueprint and a `vercel.json` config so the whole pipeline is one click on each service.
+
+See [`DEPLOY.md`](DEPLOY.md) for the step-by-step guide.
+
 ## Documentation
 
+- [`DEPLOY.md`](DEPLOY.md) — production deploy on Render + Vercel
 - [`architecture.md`](architecture.md) — module map, database schema, API endpoints
 - [`sport-research.md`](sport-research.md) — scientific basis (RIR/RPE, formulas, training phases, safety)

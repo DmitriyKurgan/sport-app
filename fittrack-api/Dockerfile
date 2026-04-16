@@ -41,6 +41,7 @@ COPY --from=prod-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 COPY --chown=nestjs:nodejs package.json ./
 COPY --chown=nestjs:nodejs scripts ./scripts
+RUN chmod +x scripts/start-production.sh
 
 USER nestjs
 
@@ -50,4 +51,6 @@ ENV PORT=3001
 EXPOSE 3001
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "dist/main.js"]
+# Default startup: ждёт PG → миграции → запуск API.
+# В docker-compose можно переопределить через `command:` для кастомного entry.
+CMD ["sh", "scripts/start-production.sh"]

@@ -31,7 +31,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8090/api/v1/screening/questions)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8090/login)",
       "Bash(curl -s http://localhost:3001/metrics)",
-      "Bash(curl -s http://localhost:3001/api/v1/training/catalog)"
+      "Bash(curl -s http://localhost:3001/api/v1/training/catalog)",
+      "Bash(curl -s -o /dev/null -w \"/health: %{http_code}\\\\n\" http://localhost:3001/health)",
+      "Bash(curl -s -o /dev/null -w \"/health/ready: %{http_code}\\\\n\" http://localhost:3001/health/ready)",
+      "Bash(curl -s http://localhost:3001/health/ready)"
     ]
   }
 }
