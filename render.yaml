@@ -1,19 +1,12 @@
-# Render Blueprint — описывает API + managed PostgreSQL.
-# Импорт: на Render → New → Blueprint → выбери репозиторий, Render найдёт этот файл.
+# Render Blueprint — only the API web service.
+# Does NOT create a managed PostgreSQL because the free tier allows only one DB per account.
+# Provide the database connection via DATABASE_URL env var (set manually in Render UI).
 #
-# После деплоя:
-#   1. Возьми URL сервиса (https://fittrack-api.onrender.com) и поставь его в Vercel
-#      как NEXT_PUBLIC_API_URL для frontend.
-#   2. В Render Dashboard → fittrack-api → Environment добавь CORS_ORIGIN=https://<твой-vercel-домен>
-#   3. (Опционально) подключи Upstash Redis и задай REDIS_HOST/REDIS_PORT/REDIS_PASSWORD;
-#      по умолчанию приложение работает без Redis (REDIS_ENABLED=false).
-
-databases:
-  - name: fittrack-db
-    databaseName: fittrack
-    user: fittrack
-    plan: free
-    postgresMajorVersion: 15
+# After import:
+#   1. Render Dashboard → fittrack-api → Environment → set DATABASE_URL to the Internal
+#      Database URL of your existing free PostgreSQL (Render → your DB → Connect → Internal).
+#   2. Set CORS_ORIGIN to your Vercel domain.
+#   3. Manual deploy (Render auto-redeploys on env change).
 
 services:
   - type: web
@@ -34,24 +27,17 @@ services:
       - key: API_PREFIX
         value: api/v1
 
-      # PostgreSQL (Render injects connection params from the database above)
-      - key: DATABASE_HOST
-        fromDatabase: { name: fittrack-db, property: host }
-      - key: DATABASE_PORT
-        fromDatabase: { name: fittrack-db, property: port }
-      - key: DATABASE_USER
-        fromDatabase: { name: fittrack-db, property: user }
-      - key: DATABASE_PASSWORD
-        fromDatabase: { name: fittrack-db, property: password }
-      - key: DATABASE_NAME
-        fromDatabase: { name: fittrack-db, property: database }
+      # PostgreSQL — set in Render UI as a single connection string:
+      # postgres://user:password@host:port/database
+      - key: DATABASE_URL
+        sync: false
       - key: DATABASE_SYNCHRONIZE
         value: "false"
       - key: DATABASE_LOGGING
         value: "false"
 
-      # Redis disabled by default (free tier has no Redis).
-      # To enable: provision Upstash Redis and set REDIS_HOST/REDIS_PORT/REDIS_PASSWORD,
+      # Redis disabled by default (free tier has no Redis addon).
+      # To enable: provision Upstash Redis and set REDIS_HOST/PORT/PASSWORD,
       # then change REDIS_ENABLED to "true".
       - key: REDIS_ENABLED
         value: "false"
@@ -69,6 +55,6 @@ services:
         value: "10"
 
       # CORS — set to your Vercel domain after frontend deploy:
-      #   https://fittrack.vercel.app
+      #   https://sport-app-gold.vercel.app
       - key: CORS_ORIGIN
         sync: false
