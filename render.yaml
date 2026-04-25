@@ -22,8 +22,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3001
+      # PORT is injected by Render (usually 10000) — do NOT set it manually here.
       - key: API_PREFIX
         value: api/v1
 

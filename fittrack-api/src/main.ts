@@ -58,9 +58,10 @@ async function bootstrap() {
   );
 
   const port = config.get<number>('app.port', 3001);
-  await app.listen(port);
+  // Bind on 0.0.0.0 — required by Render/Heroku/Docker (default 'localhost' рoute is unreachable).
+  await app.listen(port, '0.0.0.0');
 
-  Logger.log(`🚀 FitTrack API running on http://localhost:${port}/${config.get('app.apiPrefix')}`, 'Bootstrap');
+  Logger.log(`🚀 FitTrack API running on port ${port} (prefix /${config.get('app.apiPrefix')})`, 'Bootstrap');
 }
 
 bootstrap();
