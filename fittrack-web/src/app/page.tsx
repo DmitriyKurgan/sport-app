@@ -4,9 +4,6 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8 gap-6">
       <h1 className="text-4xl font-bold">FitTrack</h1>
-      <p className="text-lg text-gray-600 max-w-xl text-center">
-        12-недельная персональная программа. Детерминированная. Научно обоснованная. Без LLM в ядре.
-      </p>
       <div className="flex gap-4">
         <Link
           href="/login"

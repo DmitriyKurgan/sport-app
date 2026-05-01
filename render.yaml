@@ -13,7 +13,7 @@ services:
     name: fittrack-api
     runtime: docker
     plan: free
-    region: frankfurt
+    region: oregon
     rootDir: fittrack-api
     dockerfilePath: ./Dockerfile
     dockerContext: .
