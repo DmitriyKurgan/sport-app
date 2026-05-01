@@ -37,8 +37,31 @@ async function bootstrap() {
     exclude: ['metrics', 'health', 'health/ready'],
   });
 
+  // CORS_ORIGIN supports:
+  //   - "https://app.example.com"                          → single origin
+  //   - "https://a.com,https://b.com"                      → comma-separated list
+  //   - "/^https:\/\/sport-.*\.vercel\.app$/"              → regex (slashes wrap it)
+  // Vercel preview deploys generate unique sub-domains per commit, so a regex
+  // covering the whole project is the cleanest solution in production.
+  const corsRaw = config.get<string>('app.corsOrigin', 'http://localhost:3000');
+  const allowed = corsRaw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => {
+      const m = s.match(/^\/(.+)\/([gimsuy]*)$/);
+      return m ? new RegExp(m[1], m[2]) : s;
+    });
+
   app.enableCors({
-    origin: config.get<string>('app.corsOrigin', 'http://localhost:3000'),
+    origin: (origin, callback) => {
+      // allow tools (curl/Postman) and same-origin requests без Origin header
+      if (!origin) return callback(null, true);
+      const ok = allowed.some((rule) =>
+        rule instanceof RegExp ? rule.test(origin) : rule === origin,
+      );
+      callback(ok ? null : new Error('Not allowed by CORS'), ok);
+    },
     credentials: true,
   });
 
