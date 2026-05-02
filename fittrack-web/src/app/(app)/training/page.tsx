@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Circle, PlayCircle } from 'lucide-react';
+import { CheckCircle2, Circle, Download, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { PhaseIndicator } from '@/components/dashboard/PhaseIndicator';
@@ -10,6 +10,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { getErrorMessage } from '@/lib/errors';
+import { exportProgramToWord } from '@/lib/exportProgramToWord';
 import {
   useGenerateProgramMutation,
   useGetActiveProgramQuery,
@@ -46,6 +47,20 @@ export default function TrainingPage() {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+  const handleExport = async () => {
+    if (!program) return;
+    setExporting(true);
+    try {
+      await exportProgramToWord(program);
+      toast.success('Программа сохранена в Word');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (isLoading) {
     return <Skeleton className="h-64" />;
   }
@@ -74,10 +89,16 @@ export default function TrainingPage() {
         <div>
           <h1 className="text-2xl font-bold">{program.name}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            12 недель · {program.weeklyDays} дней/нед · сплит {program.splitType}
+            {program.totalWeeks} недель · {program.weeklyDays} дней/нед · сплит {program.splitType}
           </p>
         </div>
-        {program.isLowIntensityMode && <Badge tone="warning">Низкая интенсивность</Badge>}
+        <div className="flex items-center gap-2">
+          {program.isLowIntensityMode && <Badge tone="warning">Низкая интенсивность</Badge>}
+          <Button size="sm" variant="ghost" onClick={handleExport} loading={exporting}>
+            <Download className="mr-1 h-4 w-4" />
+            Скачать .docx
+          </Button>
+        </div>
       </div>
 
       <Card>

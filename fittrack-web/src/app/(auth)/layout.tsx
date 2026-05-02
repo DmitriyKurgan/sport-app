@@ -6,7 +6,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-brand-600">FitTrack</h1>
-          <p className="mt-1 text-sm text-gray-600">12 недель. Детерминированно. Без LLM в ядре.</p>
         </div>
         {children}
       </div>
