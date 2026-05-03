@@ -1,0 +1,45 @@
+{
+  "name": "FitTrack",
+  "short_name": "FitTrack",
+  "description": "Personalized 12-week training program with RIR autoregulation, three-tier nutrition and analytics.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "lang": "ru",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Сегодняшняя тренировка",
+      "url": "/training",
+      "description": "Открыть план на сегодня"
+    },
+    {
+      "name": "Прогресс",
+      "url": "/progress",
+      "description": "История замеров и PR"
+    }
+  ]
+}

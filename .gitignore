@@ -9,3 +9,9 @@ coverage
 .DS_Store
 .idea
 .vscode
+
+# next-pwa generated artifacts
+fittrack-web/public/sw.js
+fittrack-web/public/sw.js.map
+fittrack-web/public/workbox-*.js
+fittrack-web/public/workbox-*.js.map

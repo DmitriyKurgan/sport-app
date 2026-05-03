@@ -168,5 +168,6 @@ See [`DEPLOY.md`](DEPLOY.md) for the step-by-step guide.
 ## Documentation
 
 - [`DEPLOY.md`](DEPLOY.md) — production deploy on Render + Vercel
+- [`BUILD_APK.md`](BUILD_APK.md) — package the app as Android APK / AAB
 - [`architecture.md`](architecture.md) — module map, database schema, API endpoints
 - [`sport-research.md`](sport-research.md) — scientific basis (RIR/RPE, formulas, training phases, safety)
