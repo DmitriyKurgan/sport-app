@@ -62,12 +62,19 @@ export default function LoginPage() {
           <Button type="submit" loading={isLoading} fullWidth>
             Войти
           </Button>
-          <p className="text-center text-sm text-gray-600">
-            Нет аккаунта?{' '}
-            <Link href="/register" className="text-brand-600 hover:underline">
-              Регистрация
-            </Link>
-          </p>
+          <div className="space-y-1 text-center text-sm text-gray-600">
+            <p>
+              <Link href="/forgot-password" className="text-brand-600 hover:underline">
+                Забыли пароль?
+              </Link>
+            </p>
+            <p>
+              Нет аккаунта?{' '}
+              <Link href="/register" className="text-brand-600 hover:underline">
+                Регистрация
+              </Link>
+            </p>
+          </div>
         </form>
       </CardBody>
     </Card>

@@ -11,6 +11,7 @@ import { randomUUID } from 'crypto';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
+import mailConfig from './config/mail.config';
 import redisConfig from './config/redis.config';
 import { AvatarModule } from './modules/avatar/avatar.module';
 import { BodyTypeModule } from './modules/body-type/body-type.module';
@@ -23,6 +24,7 @@ import { AppCacheModule } from './modules/cache/app-cache.module';
 import { NoOpCacheModule } from './modules/cache/no-op-cache.module';
 import { HealthModule } from './modules/health/health.module';
 import { JobsModule } from './modules/jobs/jobs.module';
+import { MailModule } from './modules/mail/mail.module';
 import { MetricsModule } from './modules/metrics';
 import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { ProgressModule } from './modules/progress/progress.module';
@@ -66,7 +68,7 @@ export class AppModule {
         ConfigModule.forRoot({
           isGlobal: true,
           envFilePath: ['.env.local', '.env'],
-          load: [appConfig, databaseConfig, jwtConfig, redisConfig],
+          load: [appConfig, databaseConfig, jwtConfig, mailConfig, redisConfig],
         }),
         LoggerModule.forRootAsync({
           inject: [ConfigService],
@@ -128,6 +130,7 @@ export class AppModule {
         ]),
         MetricsModule,
         HealthModule,
+        MailModule,
         ...conditional,
         UserModule,
         PreScreeningModule,

@@ -13,6 +13,7 @@ import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/password-reset.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthResponseDto, AuthTokensDto, UserResponseDto } from './dto/user-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -59,6 +60,26 @@ export class UserController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@CurrentUser('id') userId: string): Promise<void> {
     await this.userService.logout(userId);
+  }
+
+  // === password reset ===
+
+  /** Request reset link. Always 200 — не раскрываем существование email. */
+  @Throttle({ global: { limit: 3, ttl: 15 * 60_000 } })
+  @Post('auth/forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ status: 'ok' }> {
+    await this.userService.requestPasswordReset(dto.email);
+    return { status: 'ok' };
+  }
+
+  /** Apply reset using token from email. */
+  @Throttle({ global: { limit: 5, ttl: 15 * 60_000 } })
+  @Post('auth/reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ status: 'ok' }> {
+    await this.userService.resetPassword(dto.token, dto.newPassword);
+    return { status: 'ok' };
   }
 
   @UseGuards(JwtAuthGuard)

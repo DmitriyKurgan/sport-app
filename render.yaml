@@ -57,3 +57,22 @@ services:
       #   https://sport-app-gold.vercel.app
       - key: CORS_ORIGIN
         sync: false
+
+      # === Mail (password reset) ===
+      # If SMTP_HOST is empty, reset emails go to logs only (dev fallback).
+      # Production: use Resend / SendGrid / Mailgun / Postmark / Gmail App Password.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_SECURE
+        value: "false"
+      - key: MAIL_FROM
+        value: "FitTrack <noreply@fittrack.app>"
+      # APP_URL — твой Vercel-домен. Попадает в ссылку из письма.
+      - key: APP_URL
+        sync: false

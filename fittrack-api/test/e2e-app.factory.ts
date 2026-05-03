@@ -24,6 +24,7 @@ import { ProgressModule } from '../src/modules/progress/progress.module';
 import { TrainingEngineModule } from '../src/modules/training-engine/training-engine.module';
 import { TrainingModule } from '../src/modules/training/training.module';
 import { UserModule } from '../src/modules/user/user.module';
+import { MailModule } from '../src/modules/mail/mail.module';
 import { AppCacheService } from '../src/modules/cache/app-cache.service';
 import { MetricsModule } from '../src/modules/metrics';
 
@@ -71,6 +72,7 @@ class TestCacheModule {}
     EventEmitterModule.forRoot({ wildcard: true, maxListeners: 20 }),
     TestCacheModule,
     MetricsModule,
+    MailModule,
     UserModule,
     PreScreeningModule,
     ProfileModule,

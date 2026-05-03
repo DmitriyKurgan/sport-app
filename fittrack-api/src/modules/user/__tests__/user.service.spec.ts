@@ -5,7 +5,9 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { MailService } from '../../mail/mail.service';
 import { MetricsService } from '../../metrics';
+import { PasswordResetToken } from '../password-reset-token.entity';
 import { User } from '../user.entity';
 import { UserService } from '../user.service';
 
@@ -59,6 +61,20 @@ describe('UserService', () => {
           },
         },
         { provide: MetricsService, useValue: metricsMock },
+        {
+          provide: getRepositoryToken(PasswordResetToken),
+          useValue: {
+            findOne: jest.fn(),
+            create: jest.fn((x) => x),
+            save: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+        {
+          provide: MailService,
+          useValue: { sendPasswordReset: jest.fn() },
+        },
       ],
     }).compile();
 

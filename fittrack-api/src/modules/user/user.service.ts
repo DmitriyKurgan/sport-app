@@ -9,23 +9,31 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { IsNull, Repository } from 'typeorm';
+import { createHash, randomBytes } from 'crypto';
+import { IsNull, LessThan, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthResponseDto, AuthTokensDto, UserResponseDto } from './dto/user-response.dto';
+import { MailService } from '../mail/mail.service';
 import { MetricsService } from '../metrics';
+import { PasswordResetToken } from './password-reset-token.entity';
 import { JwtPayload } from './strategies/jwt.strategy';
 import { User } from './user.entity';
+
+const RESET_TOKEN_TTL_MS = 30 * 60 * 1000; // 30 минут
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(PasswordResetToken)
+    private readonly resetRepo: Repository<PasswordResetToken>,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     private readonly metrics: MetricsService,
+    private readonly mail: MailService,
   ) {}
 
   async register(dto: CreateUserDto): Promise<AuthResponseDto> {
@@ -135,6 +143,70 @@ export class UserService {
     // soft delete через TypeORM DeleteDateColumn
     await this.userRepo.softDelete({ id: userId });
     await this.userRepo.update({ id: userId }, { refreshTokenHash: null, isActive: false });
+  }
+
+  // === password reset ===
+
+  /**
+   * Создаёт single-use токен и шлёт email со ссылкой.
+   * НЕ раскрывает наличие email — всегда выполняется без ошибки (200).
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await this.userRepo.findOne({
+      where: { email, deletedAt: IsNull(), isActive: true },
+    });
+
+    // Не раскрываем существование email — но если пользователь есть,
+    // создаём токен и шлём письмо.
+    if (!user) return;
+
+    // Чистим устаревшие/использованные токены этого пользователя
+    await this.resetRepo.delete({ userId: user.id });
+
+    const rawToken = randomBytes(32).toString('hex'); // 64 hex char
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+
+    await this.resetRepo.save(
+      this.resetRepo.create({
+        userId: user.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
+      }),
+    );
+
+    await this.mail.sendPasswordReset(user.email, rawToken);
+  }
+
+  /**
+   * Применяет reset: проверяет токен, ставит новый пароль, инвалидирует все refresh-токены.
+   */
+  async resetPassword(rawToken: string, newPassword: string): Promise<void> {
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const record = await this.resetRepo.findOne({ where: { tokenHash } });
+
+    if (!record || record.usedAt || record.expiresAt < new Date()) {
+      throw new UnauthorizedException('Ссылка для сброса недействительна или истекла');
+    }
+
+    const user = await this.userRepo.findOne({
+      where: { id: record.userId, deletedAt: IsNull(), isActive: true },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Пользователь недоступен');
+    }
+
+    const rounds = this.config.get<number>('app.bcryptRounds', 10);
+    const passwordHash = await bcrypt.hash(newPassword, rounds);
+
+    await this.userRepo.update(
+      { id: user.id },
+      // Ставим новый пароль и зануляем refresh-токен — все существующие сессии разлогинятся.
+      { passwordHash, refreshTokenHash: null },
+    );
+
+    await this.resetRepo.update({ id: record.id }, { usedAt: new Date() });
+    // На всякий случай — удалим заодно все просроченные токены этого юзера.
+    await this.resetRepo.delete({ userId: user.id, expiresAt: LessThan(new Date()) });
   }
 
   // === private helpers ===
